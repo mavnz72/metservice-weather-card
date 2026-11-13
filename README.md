@@ -1102,7 +1102,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## Reporting problems
 
-Please [open an issue](https://github.com/mavnz73/metservice-weather-card/issues/new/choose) and include your card
+Please [open an issue](https://github.com/mavnz72/metservice-weather-card/issues/new/choose) and include your card
 configuration, your Home Assistant version and a screenshot. If a value is **missing from the sensors**
 themselves (for example the Area, Impact and Action text of a warning), that has to be added in the
 [integration](https://github.com/nagelm/metservice-weather/issues) rather than here. See
