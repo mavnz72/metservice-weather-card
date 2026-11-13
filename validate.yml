@@ -1,0 +1,38 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hacs/action@main
+        with:
+          category: plugin
+
+  javascript:
+    name: JavaScript and manifest checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check (as a script and as a browser module)
+        run: |
+          node --check metservice-weather-card.js
+          node --input-type=module --check < metservice-weather-card.js
+      - name: hacs.json is valid and names the card file
+        run: node -e "const j=JSON.parse(require('fs').readFileSync('hacs.json','utf8')); if(!j.name||!j.filename){console.error('hacs.json needs name and filename');process.exit(1)}"
+      - name: Version in the card file has a changelog entry
+        run: |
+          v=$(grep -m1 -oE 'metservice-weather-card  v[0-9]+\.[0-9]+\.[0-9]+' metservice-weather-card.js | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          echo "card version: $v"
+          grep -q "## \[$v\]" CHANGELOG.md
