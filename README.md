@@ -1,8 +1,8 @@
 # MetService Weather Card
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
-[![Release](https://img.shields.io/github/v/release/YOUR-GITHUB-USERNAME/metservice-weather-card)](https://github.com/YOUR-GITHUB-USERNAME/metservice-weather-card/releases)
-[![Validate](https://github.com/YOUR-GITHUB-USERNAME/metservice-weather-card/actions/workflows/validate.yml/badge.svg)](https://github.com/YOUR-GITHUB-USERNAME/metservice-weather-card/actions/workflows/validate.yml)
+[![Release](https://img.shields.io/github/v/release/mavnz72/metservice-weather-card)](https://github.com/mavnz72/metservice-weather-card/releases)
+[![Validate](https://github.com/mavnz72/metservice-weather-card/actions/workflows/validate.yml/badge.svg)](https://github.com/mavnz72/metservice-weather-card/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A compact, themeable weather card for [Home Assistant](https://www.home-assistant.io/), built for the
@@ -84,7 +84,7 @@ Screenshots: add images to an images/ folder in the repository and uncomment, fo
 
 ### HACS (recommended)
 
-[![Open your Home Assistant instance and open this repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=YOUR-GITHUB-USERNAME&repository=metservice-weather-card&category=plugin)
+[![Open your Home Assistant instance and open this repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mavnz72&repository=metservice-weather-card&category=plugin)
 
 Until the card is in the default HACS store, add it as a custom repository:
 
@@ -100,7 +100,7 @@ update; reload the browser afterwards.
 
 ### Manual
 
-1. Download `metservice-weather-card.js` from the [latest release](https://github.com/YOUR-GITHUB-USERNAME/metservice-weather-card/releases/latest)
+1. Download `metservice-weather-card.js` from the [latest release](https://github.com/mavnz72/metservice-weather-card/releases/latest)
    and copy it to `/config/www/metservice-weather-card.js`.
    Check the filename carefully. Repeated downloads are often renamed
    `metservice-weather-card (1).js` or end up with a double dot.
@@ -1102,7 +1102,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## Reporting problems
 
-Please [open an issue](https://github.com/YOUR-GITHUB-USERNAME/metservice-weather-card/issues/new/choose) and include your card
+Please [open an issue](https://github.com/mavnz73/metservice-weather-card/issues/new/choose) and include your card
 configuration, your Home Assistant version and a screenshot. If a value is **missing from the sensors**
 themselves (for example the Area, Impact and Action text of a warning), that has to be added in the
 [integration](https://github.com/nagelm/metservice-weather/issues) rather than here. See
