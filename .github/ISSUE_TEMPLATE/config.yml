@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Missing or wrong data from MetService
+    url: https://github.com/nagelm/metservice-weather/issues
+    about: If a sensor is missing, empty or wrong, or MetService shows something the sensors don't carry, please ask in the integration's repository.

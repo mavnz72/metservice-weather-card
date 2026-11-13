@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest an improvement or a new option
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas are welcome. Please note the card can only show data the
+        [integration](https://github.com/nagelm/metservice-weather) provides, so a request for new data (for example extra warning details) is best made there.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it help?
+      description: What are you trying to do that the card doesn't currently let you do?
+  - type: textarea
+    id: example
+    attributes:
+      label: Examples
+      description: Screenshots, mock-ups, or links to cards that do something similar.
