@@ -13,12 +13,9 @@ fire danger, clothes-drying advice and full warning details, with the usual hour
 > **Unofficial community project.** Not affiliated with or endorsed by MetService or Home Assistant.
 > All weather data comes from the integration and MetService.
 
-<!--
-Screenshots: add images to an images/ folder in the repository and uncomment, for example:
-
-![Dark theme](images/dark.png)
-![Light theme](images/light.png)
--->
+| Dark | Light |
+|---|---|
+| <img src="images/Dark.png" width="340"> | <img src="images/Light.png" width="340"> |
 
 ## Features
 
