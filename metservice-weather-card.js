@@ -1,5 +1,5 @@
 /**
- * metservice-weather-card  v0.1.0
+ * metservice-weather-card  v0.1.1
  * A compact weather card built around the MetService NZ integration.
  * Full documentation, with every option explained: README.md
  * Licence: MIT (see LICENSE).  Unofficial community project, not affiliated with MetService or Home Assistant.
@@ -635,15 +635,19 @@ ha-icon{--mdc-icon-size:20px;width:20px;height:20px;color:var(--n-ico);flex:none
       const dt = this._st(this._ent('warning_details'));
       const aw = dt && dt.attributes.active_warnings;
       const items = (Array.isArray(aw) ? aw : []).map(w => (typeof w === 'string' ? { name: w } : { name: w.name || w.title || w.headline || '', text: w.text || w.description || '', period: w.threat_period || w.period || '' }));
+      const headline = st.attributes.headline || pretty(st.state);
+      const same = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
       const names = items.map(w => w.name).filter(Boolean).join(' · ') || (typeof aw === 'string' ? aw : '');
+      // a single warning whose name is the headline: the headline already says it, so don't repeat it below
+      const single = items.length === 1 && same(items[0].name, headline);
       const mode = h.warning_details || 'collapsed';
       const more = mode !== 'off' && items.some(w => w.text || w.period);
       const open = more && (mode === 'expanded' || !!this._exp.warn);
       const wcol = n => (/\bred\b/i.test(n) ? WARN_COL.red : /\borange\b/i.test(n) ? WARN_COL.orange : /\bwatch\b/i.test(n) ? WARN_COL.watch : WARN_COL.warning);
       const paras = t => String(t || '').split(/\n\s*\n/).map(x => x.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean).map(x => `<p>${esc(x)}</p>`).join('');
-      const body = open ? items.map(w => `<div class="bw"><div class="bwn" style="color:${wcol(w.name)}">${esc(w.name)}</div>${w.period ? `<div class="bwt">${esc(w.period)}</div>` : ''}${w.text ? `<div class="bwx">${paras(w.text)}</div>` : ''}</div>`).join('') : '';
+      const body = open ? items.map(w => `<div class="bw">${single ? '' : `<div class="bwn" style="color:${wcol(w.name)}">${esc(w.name)}</div>`}${w.period ? `<div class="bwt">${esc(w.period)}</div>` : ''}${w.text ? `<div class="bwx">${paras(w.text)}</div>` : ''}</div>`).join('') : '';
       const btn = more && mode !== 'expanded' ? `<button class="pm wb" data-more="warn">${esc(this._t(open ? 'warn_less' : 'warn_more'))}</button>` : '';
-      return `<div class="ban" style="border-color:${col};color:${col}"><b>${esc(st.attributes.headline || pretty(st.state))}</b>${names && !open ? `<small>${esc(names)}</small>` : ''}${body}${btn}</div>`;
+      return `<div class="ban" style="border-color:${col};color:${col}"><b>${esc(headline)}</b>${names && !open && !same(names, headline) ? `<small>${esc(names)}</small>` : ''}${body}${btn}</div>`;
     }
 
     _header() {
@@ -1074,5 +1078,5 @@ ${foot(anyRain, r => (r.rain > 0 ? `<span style="color:var(--n-blue)">${r.rain.t
   if (!customElements.get(CARD)) customElements.define(CARD, MetserviceWeatherCard);
   window.customCards = window.customCards || [];
   window.customCards.push({ type: CARD, name: 'MetService Weather Card', description: 'Compact weather card for the MetService NZ integration', preview: false });
-  console.info('%c METSERVICE-WEATHER-CARD %c v0.1.0 ', 'background:#0e9db5;color:#fff', 'background:#152238;color:#fff');
+  console.info('%c METSERVICE-WEATHER-CARD %c v0.1.1 ', 'background:#0e9db5;color:#fff', 'background:#152238;color:#fff');
 })();
