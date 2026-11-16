@@ -17,6 +17,10 @@ fire danger, clothes-drying advice and full warning details, with the usual hour
 |---|---|
 | <img src="images/Dark.png" width="340"> | <img src="images/Light.png" width="340"> |
 
+| Weather Warnings Collapsed | Weather Warnings Expanded |
+|---|---|
+| <img src="images/Warning_collapsed.png" width="340"> | <img src="images/Warning_expanded.png" width="340"> |
+
 ## Features
 
 - **Header** with temperature, feels-like, condition, clock and date, today's written forecast, and an
