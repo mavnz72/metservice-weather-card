@@ -535,7 +535,7 @@ The MetService drying sensors hold text such as `1 - 3 hrs`; it is tidied to `1â
 ## UV section
 
 A dedicated UV block, by default below the stats. The number can come from one service and the
-wording and times from MetService, which sends no UV number of its own:
+protection times from MetService, which sends no UV number of its own:
 
 ```yaml
 uv:
@@ -544,24 +544,50 @@ uv:
 
 ```
 UV                                             5 - Dangerous
-Dangerous from 09:55 to 16:05
+Dangerous now to 16:05
 [coloured 0-12 scale with a marker at 5]
 Protection required. 9:55 AM - 4:05 PM. Even on cloudy days.
 ```
 
-- **Top right of the heading (like the pollen level):** the UV number and MetService's level word. With
-  no number source the word is shown on its own. If the MetService sensor is missing but a number is available, the word is worked out
-  from the number (under 3 low, under 6 moderate, under 8 high, under 11 very high, above that extreme).
-- **Line under the heading (times):** taken from the sensor's `protection_window_start` and
-  `protection_window_end`, in your clock format and time zone.
-  - Window still ahead: `Dangerous from 09:55 to 16:05` (the start has the weekday if it is not today).
-  - Window under way: `Dangerous now to 16:05`.
-  - Window over, or no window: no second line.
-  - For levels other than dangerous the word "Protection" is used instead of "Dangerous".
-- **Colours:** dangerous (now) is orange; dangerous later, high, very high and extreme are amber.
+### What the label says
+
+The label at the top right describes the UV **right now**, and follows these rules:
+
+| Situation | Label |
+|---|---|
+| The UV number is **0** | just `0`, with no word |
+| The time is **inside MetService's protection window** (from its start time to its end time) | `6 - Dangerous` |
+| Any other time | the **UN / WHO UV index level** for the number: `1 - Low`, `4 - Moderate`, `7 - High`, `9 - Very high`, `12 - Extreme` |
+
+So "Dangerous" never appears before the window opens or after it closes, even if MetService's own
+sensor says `dangerous_later`. The UN levels are: 0 to 2 Low, 3 to 5 Moderate, 6 to 7 High, 8 to 10
+Very high, 11 and above Extreme. The index is a whole number, so a reading such as 2.6 is rounded
+(to 3) before the level is chosen and shown.
+
+- **Colours:** Dangerous and High are orange, Moderate is amber, Very high and Extreme are red, and
+  Low and 0 use the normal text colour.
+- **No number source:** the card can't work out a UN level, so it shows `Dangerous` inside the
+  protection window and MetService's own `Not dangerous` otherwise.
+- **If MetService gives no window times** but says `dangerous`, that is treated as being inside the window.
+
+### The line under the heading
+
+- Window still ahead: `Dangerous from 09:55 to 16:05` (the start has the weekday if it is not today).
+- Window under way: `Dangerous now to 16:05`.
+- Otherwise MetService's own `alert_label` is shown, for example `Not dangerous until tomorrow`
+  (the same wording as the MetService website).
+- For levels other than dangerous the word "Protection" is used instead of "Dangerous".
+- The times come from the sensor's `protection_window_start` and `protection_window_end`, in your
+  clock format and time zone. Once a window has ended the sensor keeps showing that old window while
+  its `alert_label` and `advice` move on to the next one, so a finished window is never displayed.
+
+### Also in the section
+
 - **Scale:** a 0 to 12 bar in the usual UV colours (green, yellow, orange, red, violet) with a marker
   at the number. It needs a number, so it appears only when one is available.
-- **Advice:** MetService's `advice` text in small type. It uses MetService's own 12-hour wording.
+- **Advice:** MetService's `advice` text in small type, with a doubled full stop tidied. It uses
+  MetService's own 12-hour wording, so it can show the next window ("11:10 AM - 4:40 PM tomorrow")
+  after today's has finished.
 - The section is hidden when there is no UV data. `show: false` hides it.
 
 | Option | Default | Description |
@@ -573,6 +599,8 @@ Protection required. 9:55 AM - 4:05 PM. Even on cloudy days.
 | `show_scale` | `true` | The colour scale (needs a number). |
 | `show_advice` | `true` | The advice text. |
 | `label` | `UV` | Heading. `""` removes it. |
+
+The compact `uv` **stat** is separate and still uses MetService's own wording.
 
 ---
 
@@ -716,7 +744,8 @@ strings:
 | `gust` | gust | Wind stat |
 | `left` | left | Solar remaining stat |
 | `from`, `to`, `until` | from, to, until | Rain start time, UV protection times |
-| `uv_dangerous`, `uv_not_dangerous` | Dangerous, Not dangerous | UV level words |
+| `uv_dangerous`, `uv_not_dangerous` | Dangerous, Not dangerous | UV label inside the protection window, and with no number source |
+| `uv_low`, `uv_moderate`, `uv_high`, `uv_very_high`, `uv_extreme` | Low, Moderate, High, Very high, Extreme | The UN / WHO UV index levels |
 | `now`, `protection` | now, Protection | UV time line ("Dangerous now to 16:05") |
 | `pollen_high`, `pollen_moderate`, `pollen_low`, `pollen_imminent`, `pollen_none` | High, Moderate, Low, Imminent, None | Pollen group names and overall level |
 | `pollen_desc_high`, `pollen_desc_moderate`, `pollen_desc_low`, `pollen_desc_imminent` | one-line explanations | Pollen level descriptions |
@@ -1104,7 +1133,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 ## Reporting problems
 
 Please [open an issue](https://github.com/mavnz72/metservice-weather-card/issues/new/choose) and include your card
-configuration, your Home Assistant version and a screenshot. If a value is **missing from the sensors**
+configuration, your Home Assistant version and a screenshot. If a value is **missing from the sensors
 themselves (for example the Area, Impact and Action text of a warning), that has to be added in the
 [integration](https://github.com/nagelm/metservice-weather/issues) rather than here. See
 [CONTRIBUTING.md](CONTRIBUTING.md) if you would like to help.
