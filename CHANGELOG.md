@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/).
 
+## [0.1.2] - 2026-11-22
+
+### Changed
+- UV section: the label now describes the UV right now. "Dangerous" is shown only while the time is inside
+  MetService's protection window; at any other time the label is the UN / WHO UV index level (Low,
+  Moderate, High, Very high, Extreme), and a UV of 0 is shown as just `0`. Previously a UV of 0 early in
+  the morning could read "0 - Dangerous" because MetService said it would be dangerous later.
+- UV section: when there is no current or upcoming window, the line under the heading shows MetService's
+  own alert text (for example "Not dangerous until tomorrow"), as the MetService website does.
+- UV section: a doubled full stop in MetService's advice text is tidied.
+
 ## [0.1.1] - 2026-11-16
 
 ### Fixed
