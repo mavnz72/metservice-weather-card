@@ -1,5 +1,5 @@
 /**
- * metservice-weather-card  v0.1.1
+ * metservice-weather-card  v0.1.2
  * A compact weather card built around the MetService NZ integration.
  * Full documentation, with every option explained: README.md
  * Licence: MIT (see LICENSE).  Unofficial community project, not affiliated with MetService or Home Assistant.
@@ -103,6 +103,7 @@
     today: 'Today', tomorrow: 'Tomorrow', feels_like: 'Feels like', issued: 'Forecast issued', rain_from: 'Rain from',
     sunrise: 'Sunrise', sunset: 'Sunset', hourly_label: 'Next hours', solar_est: 'Solar est. kWh', days: '{n}-day',
     gust: 'gust', left: 'left', from: 'from', to: 'to', clear: 'Clear', uv_dangerous: 'Dangerous', until: 'until', now: 'now', protection: 'Protection', uv_not_dangerous: 'Not dangerous',
+    uv_low: 'Low', uv_moderate: 'Moderate', uv_high: 'High', uv_very_high: 'Very high', uv_extreme: 'Extreme',
     pollen_none: 'None', pollen_high: 'High', pollen_moderate: 'Moderate', pollen_low: 'Low', pollen_imminent: 'Imminent',
     more: '+{n} more', less: 'Show less', warn_more: 'More details', warn_less: 'Show less',
     sunrise_in: 'Sunrise in {t}', sunset_in: 'Sunset in {t}', daylight: '{t} of daylight',
@@ -253,7 +254,7 @@ ha-icon{--mdc-icon-size:20px;width:20px;height:20px;color:var(--n-ico);flex:none
 .s small.adv{display:block;margin:2px 0 0;line-height:1.3}
 .tmw{display:flex;flex-direction:column;gap:6px}
 .tt{font-size:18px;font-weight:500}.tx{font-size:15px;line-height:1.45;color:var(--primary-text-color)}
-.plv.am{color:var(--n-amber)}.plv.hot{color:var(--mw-orange)}
+.plv.am{color:var(--n-amber)}.plv.hot{color:var(--mw-orange)}.plv.red{color:var(--mw-red)}
 .uvt{margin-top:10px;font-size:15px}
 .gs{overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;cursor:grab;user-select:none;-webkit-user-select:none}
 .gs::-webkit-scrollbar{display:none}.gs.drag{cursor:grabbing}
@@ -1015,19 +1016,30 @@ ${foot(anyRain, r => (r.rain > 0 ? `<span style="color:var(--n-blue)">${r.rain.t
       const ws = c.window_entity ? this._st(c.window_entity) : st, A = (ws && ws.attributes) || {};
       const now = this._now, future = d => d && d > now;
       const start = this._date(A.protection_window_start), end = this._date(A.protection_window_end || (c.window_entity && ws ? ws.state : null));
-      const lv = level || (num < 3 ? 'low' : num < 6 ? 'moderate' : num < 8 ? 'high' : num < 11 ? 'very_high' : 'extreme');
-      const danger = lv === 'dangerous' || lv === 'dangerous_later';
-      const word = danger ? this._t('uv_dangerous') : lv === 'not_dangerous' ? this._t('uv_not_dangerous') : pretty(lv);
-      const cls = lv === 'dangerous' ? ' hot' : (danger || ['high', 'very_high', 'extreme'].includes(lv)) ? ' am' : '';
-      const w = danger ? this._t('uv_dangerous') : this._t('protection');
+      // "Dangerous" is shown only while we are inside MetService's protection window (or when MetService says
+      // "dangerous" and gives no times). At any other time the label is the UN / WHO UV index level, and a UV of 0 is just "0".
+      const inWindow = start && end ? start <= now && now <= end : level === 'dangerous';
+      const rounded = num != null ? Math.round(num) : null;
+      const band = rounded == null ? null : rounded < 3 ? 'low' : rounded < 6 ? 'moderate' : rounded < 8 ? 'high' : rounded < 11 ? 'very_high' : 'extreme';
+      const BANDCLS = { low: '', moderate: ' am', high: ' hot', very_high: ' red', extreme: ' red' };
+      let word = '', cls = '';
+      if (rounded === 0) word = '';
+      else if (inWindow) { word = this._t('uv_dangerous'); cls = ' hot'; }
+      else if (band) { word = this._t('uv_' + band); cls = BANDCLS[band]; }
+      else if (['low', 'moderate', 'high', 'very_high', 'extreme'].includes(level)) { word = this._t('uv_' + level); cls = BANDCLS[level]; }
+      else word = this._t('uv_not_dangerous');
+      const w = level === 'dangerous' || level === 'dangerous_later' ? this._t('uv_dangerous') : this._t('protection');
       let line = '';
       if (future(start)) line = `${w} ${this._t('from')} ${this._when(start)}${future(end) ? ` ${this._t('to')} ${this._time(end)}` : ''}`;
       else if (future(end)) line = `${w} ${this._t('now')} ${this._t('to')} ${this._time(end)}`;
-      const nstr = num != null ? String(Math.round(num * 10) / 10) : '';
+      else if (st && st.attributes.alert_label) line = st.attributes.alert_label;       // e.g. "Not dangerous until tomorrow"
+      const nstr = rounded != null ? String(rounded) : '';
       const label = c.label !== undefined ? c.label : this._t('uv');
       const scale = c.show_scale && num != null ? `<div class="uvb"><div class="dot" style="left:${Math.max(0, Math.min(100, num / 12 * 100)).toFixed(1)}%"></div></div>` : '';
-      const adv = c.show_advice && st && st.attributes.advice ? `<div class="uva">${esc(st.attributes.advice)}</div>` : '';
-      return `<div><div class="st"><span>${esc(label)}</span><span class="plv${cls}">${nstr ? esc(nstr) + ' - ' : ''}${esc(word)}</span></div>${line ? `<div class="uvt">${esc(line)}</div>` : ''}${scale}${adv}</div>`;
+      const advice = c.show_advice && st && st.attributes.advice ? String(st.attributes.advice).replace(/([^.])\.\.(?!\.)/g, '$1.') : '';
+      const adv = advice ? `<div class="uva">${esc(advice)}</div>` : '';
+      const right = nstr ? esc(nstr) + (word ? ' - ' + esc(word) : '') : esc(word);
+      return `<div><div class="st"><span>${esc(label)}</span><span class="plv${cls}">${right}</span></div>${line ? `<div class="uvt">${esc(line)}</div>` : ''}${scale}${adv}</div>`;
     }
 
     _pollen() {
@@ -1078,5 +1090,5 @@ ${foot(anyRain, r => (r.rain > 0 ? `<span style="color:var(--n-blue)">${r.rain.t
   if (!customElements.get(CARD)) customElements.define(CARD, MetserviceWeatherCard);
   window.customCards = window.customCards || [];
   window.customCards.push({ type: CARD, name: 'MetService Weather Card', description: 'Compact weather card for the MetService NZ integration', preview: false });
-  console.info('%c METSERVICE-WEATHER-CARD %c v0.1.1 ', 'background:#0e9db5;color:#fff', 'background:#152238;color:#fff');
+  console.info('%c METSERVICE-WEATHER-CARD %c v0.1.2 ', 'background:#0e9db5;color:#fff', 'background:#152238;color:#fff');
 })();
